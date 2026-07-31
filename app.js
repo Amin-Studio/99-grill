@@ -334,11 +334,17 @@ window.addEventListener('scroll', onScroll, { passive: true });
 onScroll();
 requestAnimationFrame(scrubLoop);
 
-/* headline track-in */
-window.addEventListener('load', () => {
-  setTimeout(() => hero.classList.add('words-in'), 150);
-});
-setTimeout(() => hero.classList.add('words-in'), 900); // fallback if load already fired
+/* headline track-in. Once the words have finished sliding up, release the
+   line clip (see .words-done in styles.css) so the headline's text-shadow
+   isn't cut into a grey rectangle by overflow:hidden. */
+function trackInHeadline() {
+  if (hero.classList.contains('words-in')) return;
+  hero.classList.add('words-in');
+  // longest word delay (4 * 90ms) + 700ms transition, plus margin
+  setTimeout(() => hero.classList.add('words-done'), 1400);
+}
+window.addEventListener('load', () => setTimeout(trackInHeadline, 150));
+setTimeout(trackInHeadline, 900); // fallback if load already fired
 
 /* stagger the words */
 document.querySelectorAll('.hl-word').forEach((w, i) => {
