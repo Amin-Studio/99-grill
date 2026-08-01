@@ -139,8 +139,9 @@ h1, h2, h3, .btn { font-family: var(--font-display); font-weight: 400; letter-sp
   display: flex;
   align-items: center;
   justify-content: center;
-  /* poster behind the video masks black frames while the clip loads/seeks */
-  background: var(--black) url('public/media/hero-burger.jpg') center / cover no-repeat;
+  /* first frame of the hero clip sits behind the video so the load-in is
+     seamless — no visible swap when the video takes over */
+  background: var(--black) url('public/media/hero-smash-poster.jpg?v=12') center / cover no-repeat;
 }
 .hero-video {
   position: absolute; inset: 0;

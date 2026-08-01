@@ -144,7 +144,7 @@ const MENU = [
   },
   {
     id: 'breakfast-plates', label: 'Breakfast Plates',
-    note: 'Breakfast served 6:00 a.m. – 11:00 a.m. only.',
+    note: 'Breakfast coming soon.',
     items: [
       { name: 'Wake Up Meal', price: '$11.99', desc: '2 eggs, beef bacon, home fries & toast' },
       { name: '99 Grand Slam', price: '$14.99', desc: '3 eggs, sausage, home fries, toast & beef bacon jam' },
@@ -153,7 +153,7 @@ const MENU = [
   },
   {
     id: 'pancakes', label: 'Pancakes',
-    note: 'Served with butter, powdered sugar & maple syrup. Breakfast served 6:00 a.m. – 11:00 a.m. only.',
+    note: 'Served with butter, powdered sugar & maple syrup. Breakfast coming soon.',
     items: [
       { name: '2 Pancakes', price: '$5.99' },
       { name: '3 Pancakes', price: '$7.49' },
@@ -162,14 +162,14 @@ const MENU = [
   },
   {
     id: 'breakfast-sandwiches', label: 'Breakfast Sandwiches',
-    note: 'Breakfast served 6:00 a.m. – 11:00 a.m. only.',
+    note: 'Breakfast coming soon.',
     items: [
       { name: 'Breakfast Grilled Cheese', price: '$10.99', desc: 'Two grilled cheese sandwiches served with eggs & beef bacon' }
     ]
   },
   {
     id: 'breakfast-bowls', label: 'Breakfast Bowls',
-    note: 'Breakfast served 6:00 a.m. – 11:00 a.m. only.',
+    note: 'Breakfast coming soon.',
     items: [
       { name: 'Grilled Chicken Bowl', price: '$12.99', desc: 'Grilled chicken, scrambled eggs, lettuce, tomatoes, cucumbers, onions & your choice of sauce' },
       { name: 'Steak & Egg Bowl', price: '$14.99', desc: 'Grilled steak, scrambled eggs, lettuce, tomatoes, peppers, onions & your choice of sauce' }
@@ -177,7 +177,7 @@ const MENU = [
   },
   {
     id: 'salads', label: 'Salads',
-    note: 'Breakfast served 6:00 a.m. – 11:00 a.m. only.',
+    note: 'Breakfast coming soon.',
     items: [
       { name: 'Caesar Salad', price: '$9.99', desc: 'Fresh romaine, parmesan, croutons & Caesar dressing' },
       { name: 'Cheese Salad', price: '$10.99', desc: 'Fresh lettuce, tomatoes, cucumbers, cheddar, mozzarella & red onions (add grilled chicken or steak)' }
@@ -185,7 +185,7 @@ const MENU = [
   },
   {
     id: 'homefries', label: 'Home Fries',
-    note: 'Breakfast served 6:00 a.m. – 11:00 a.m. only.',
+    note: 'Breakfast coming soon.',
     items: [
       { name: 'Loaded Home Fries', price: '$12.99', desc: 'Seasoned home fries, diced beef bacon, scrambled eggs, cheddar cheese sauce & chives' },
       { name: '99 Fire Home Fries', tag: 'spicy', price: '$8.99', desc: 'Cajun-seasoned home fries topped with 99 Fire Sauce' },
@@ -194,7 +194,7 @@ const MENU = [
   },
   {
     id: 'hotdrinks', label: 'Hot Drinks',
-    note: 'Breakfast served 6:00 a.m. – 11:00 a.m. only.',
+    note: 'Breakfast coming soon.',
     items: [
       { name: 'Coffee', price: '$2.99', desc: 'Fresh brewed coffee' },
       { name: 'Tea', price: '$2.99', desc: 'Fresh hot tea' }
@@ -274,19 +274,26 @@ heroVideo.pause();
 fetch(heroVideo.querySelector('source').src)
   .then(r => { if (!r.ok) throw new Error('video fetch failed'); return r.blob(); })
   .then(b => {
+    const resumeAt = heroVideo.currentTime; // keep position if user already scrolled
     heroVideo.src = URL.createObjectURL(b);
     heroVideo.load();
     heroVideo.pause();
+    heroVideo.addEventListener('loadeddata', () => {
+      try { heroVideo.currentTime = resumeAt; } catch (e) { /* ignore */ }
+    }, { once: true });
   })
   .catch(() => { /* fall back to the <source> as-is */ });
 
+/* Two separate milestones: show the video as soon as the browser can paint a
+   frame from the streaming <source> (otherwise the poster sits there for the
+   whole blob download), but only enable scrubbing once it's actually seekable. */
 const readyPoll = setInterval(() => {
+  if (heroVideo.readyState >= 2) heroVideo.classList.add('ready');
   if (heroVideo.readyState >= 2 && heroVideo.seekable.length > 0 && heroVideo.seekable.end(0) > 0) {
     videoReady = true;
-    heroVideo.classList.add('ready');
     clearInterval(readyPoll);
   }
-}, 200);
+}, 100);
 
 function heroProgress() {
   const rect = hero.getBoundingClientRect();
